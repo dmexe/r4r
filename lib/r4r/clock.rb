@@ -1,5 +1,7 @@
 module R4r
   # A system clock
+  #
+  # @abstract
   class Clock
     # Returns current system time in milliseconds
     def call

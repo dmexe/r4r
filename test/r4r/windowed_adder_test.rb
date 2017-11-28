@@ -6,35 +6,35 @@ describe R4r::WindowedAdder do
     adder = new_adder(clock)
 
     adder.incr
-    adder.sum.must_equal 1
+    expect(adder.sum).must_equal 1
 
     clock.advance(seconds: 1)
     adder.add(2)
-    adder.sum.must_equal 3
+    expect(adder.sum).must_equal 3
 
     clock.advance(seconds: 1)
     adder.incr
-    adder.sum.must_equal 4
+    expect(adder.sum).must_equal 4
 
     clock.advance(seconds: 2)
-    adder.sum.must_equal 1
+    expect(adder.sum).must_equal 1
 
     clock.advance(seconds: 100)
-    adder.sum.must_equal 0
+    expect(adder.sum).must_equal 0
 
     adder.add(100)
 
     clock.advance(seconds: 1)
-    adder.sum.must_equal 100
+    expect(adder.sum).must_equal 100
 
     adder.add(100)
 
     clock.advance(seconds: 1)
     adder.add(100)
-    adder.sum.must_equal 300
+    expect(adder.sum).must_equal 300
 
     clock.advance(seconds: 100)
-    adder.sum.must_equal 0
+    expect(adder.sum).must_equal 0
   end
 
   it "should maintains negative sums" do
@@ -43,35 +43,35 @@ describe R4r::WindowedAdder do
 
     # net: 2
     adder.add(-2)
-    adder.sum.must_equal(-2)
+    expect(adder.sum).must_equal(-2)
 
     adder.add(4)
-    adder.sum.must_equal(2)
+    expect(adder.sum).must_equal(2)
 
     # net: -4
     clock.advance(seconds: 1)
     adder.add(-2)
-    adder.sum.must_equal(0)
+    expect(adder.sum).must_equal(0)
 
     adder.add(-2)
-    adder.sum.must_equal(-2)
+    expect(adder.sum).must_equal(-2)
 
     # net: -2
     clock.advance(seconds: 1)
     adder.add(-2)
-    adder.sum.must_equal(-4)
+    expect(adder.sum).must_equal(-4)
 
     clock.advance(seconds: 1)
-    adder.sum.must_equal(-6)
+    expect(adder.sum).must_equal(-6)
 
     clock.advance(seconds: 1)
-    adder.sum.must_equal(-2)
+    expect(adder.sum).must_equal(-2)
 
     clock.advance(seconds: 1)
-    adder.sum.must_equal(0)
+    expect(adder.sum).must_equal(0)
 
     clock.advance(seconds: 100)
-    adder.sum.must_equal(0)
+    expect(adder.sum).must_equal(0)
   end
 
   private

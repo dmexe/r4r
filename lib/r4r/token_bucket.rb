@@ -4,6 +4,7 @@ module R4r
   #
   # A Ruby port of the finagle's TokenBucket.
   #
+  # @abstract
   # @see https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/TokenBucket.scala
   class TokenBucket
     # Put `n` tokens into the bucket.

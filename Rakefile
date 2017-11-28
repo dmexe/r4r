@@ -33,6 +33,6 @@ end
 require 'yard'
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'ext/**/*.c']
-  t.options = ['--any', '--extra', '--opts']
+  t.options = []
   t.stats_options = ['--list-undoc']
 end

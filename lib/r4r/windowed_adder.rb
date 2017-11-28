@@ -7,8 +7,6 @@ module R4r
   #
   # @see https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/WindowedAdder.scala
   # @see https://github.com/ruby-concurrency/concurrent-ruby/blob/master/lib/concurrent/thread_safe/util/adder.rb
-  #
-  # @!visbility private
   class WindowedAdder
 
     # Creates a time-windowed version of a {Concurrent::ThreadSafe::Util::Adder].

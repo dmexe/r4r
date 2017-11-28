@@ -6,6 +6,6 @@ describe R4r::SystemClockExt do
     tm2 = (Time.now.to_f * 1000).to_i
     diff = (tm1 - tm2).abs
 
-    diff.must_be :<, 10
+    expect(diff).must_be :<, 10
   end
 end

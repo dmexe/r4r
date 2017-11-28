@@ -9,26 +9,26 @@ describe R4r::RingBits do
   it "should set values" do
     bs = R4r::RingBits.new(size: 4)
 
-    bs.index.must_equal(-1)
-    bs.set_next(true).must_equal(1)
+    expect(bs.index).must_equal(-1)
+    expect(bs.set_next(true)).must_equal(1)
 
-    bs.index.must_equal(0)
-    bs.set_next(false).must_equal(1)
+    expect(bs.index).must_equal(0)
+    expect(bs.set_next(false)).must_equal(1)
 
-    bs.index.must_equal(1)
-    bs.set_next(true).must_equal(2)
+    expect(bs.index).must_equal(1)
+    expect(bs.set_next(true)).must_equal(2)
 
-    bs.index.must_equal(2)
-    bs.set_next(true).must_equal(3)
+    expect(bs.index).must_equal(2)
+    expect(bs.set_next(true)).must_equal(3)
 
-    bs.index.must_equal(3)
-    bs.set_next(false).must_equal(2)
+    expect(bs.index).must_equal(3)
+    expect(bs.set_next(false)).must_equal(2)
 
-    bs.index.must_equal(0)
-    bs.set_next(false).must_equal(2)
+    expect(bs.index).must_equal(0)
+    expect(bs.set_next(false)).must_equal(2)
 
-    bs.index.must_equal(1)
-    bs.cardinality.must_equal(2)
+    expect(bs.index).must_equal(1)
+    expect(bs.cardinality).must_equal(2)
   end
 
   it "should set values with less capacity" do
@@ -45,8 +45,8 @@ describe R4r::RingBits do
         end
       }
 
-    bs.cardinality.must_equal(expected_cardinality)
-    bs.bit_set_size.must_equal(128)
-    bs.length.must_equal(100)
+    expect(bs.cardinality).must_equal(expected_cardinality)
+    expect(bs.bit_set_size).must_equal(128)
+    expect(bs.length).must_equal(100)
   end
 end

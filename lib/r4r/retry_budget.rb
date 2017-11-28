@@ -7,6 +7,7 @@ module R4r
   #
   # A Ruby port of the finagle's RetryBudget.
   #
+  # @abstract
   # @see https://github.com/twitter/finagle/blob/master/finagle-core/src/main/scala/com/twitter/finagle/service/RetryBudget.scala
   class RetryBudget
 
@@ -68,7 +69,7 @@ module R4r
       end
 
       if min_retries_per_second == 0 && percent_can_retry == 0.0
-        return R4r::EmptyRetryBudget.new
+        return R4r::RetryBudget.empty
       end
 
       deposit_amount = percent_can_retry == 0.0 ? 0 : R4r::TokenRetryBudget::SCALE_FACTOR.to_i
@@ -76,6 +77,16 @@ module R4r
       reserve = min_retries_per_second * (ttl_ms / 1000) * withdrawal_amount
       bucket = R4r::LeakyTokenBucket.new(ttl_ms: ttl_ms, reserve: reserve, clock: clock)
       R4r::TokenRetryBudget.new(bucket: bucket, deposit_amount: deposit_amount, withdrawal_amount: withdrawal_amount)
+    end
+
+    # Creates an empty retry budget.
+    def self.empty
+      EmptyRetryBudget.new
+    end
+
+    # Creates an infinite retry budget.
+    def self.infinite
+      InfiniteRetryBudget.new
     end
   end
 
@@ -99,8 +110,8 @@ module R4r
     # This scaling factor allows for `percent_can_retry` > 1 without
     # having to use floating points (as the underlying mechanism
     # here is a {R4r::TokenBucket} which is not floating point based).
-    SCALE_FACTOR = 1000
-    DEFAULT_TTL_MS = 10 * 1000
+    SCALE_FACTOR = 1000.0
+    DEFAULT_TTL_MS = 60 * 1000
 
     # Creates a new {R4r::TokenRetryBudget}.
     #
