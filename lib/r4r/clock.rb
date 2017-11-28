@@ -7,14 +7,6 @@ module R4r
     end
   end
 
-  # A ruby time clock
-  class DefaultClock < Clock
-    # @see R4r::Clock#call
-    def call
-      (Time.now.to_f * 1_000).to_i
-    end
-  end
-
   # A frozen clock for testing
   class FrozenClock < Clock
     # Creates a new instance of frozen clock.
@@ -37,7 +29,7 @@ module R4r
     end
   end
 
-  @@clock = DefaultClock.new
+  @@clock = R4r::SystemClockExt.new
 
   # Default {R4r::Clock} instance.
   def self.clock

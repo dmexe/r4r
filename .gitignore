@@ -9,3 +9,4 @@
 *.bundle
 *.o
 /html/
+/test/reports/

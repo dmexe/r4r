@@ -44,6 +44,7 @@ ring_bits_ext_alloc(VALUE klass) {
 
   return obj;
 }
+
 /**
  * Inits a new ring_bits_ext object.
  *

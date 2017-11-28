@@ -1,4 +1,4 @@
-require 'test_helper'
+require 'bench_helper'
 
 class RetriesBenchmark < MiniTest::Benchmark
   def bench_retry_call

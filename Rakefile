@@ -10,7 +10,7 @@ end
 Rake::TestTask.new(:bench) do |t|
   t.libs << "test"
   t.libs << "lib"
-  t.test_files = FileList["test/**/*_benchmark.rb"]
+  t.test_files = FileList["test/**/benchmark_*.rb"]
 end
 
 task :default => :test
@@ -18,17 +18,23 @@ task :default => :test
 require 'rake/extensiontask'
 spec = Gem::Specification.load('r4r.gemspec')
 
-Rake::ExtensionTask.new do |ext|
-  ext.name = 'ring_bits_ext'
-  ext.ext_dir = 'ext/r4r/ring_bits'
-  ext.lib_dir = 'lib/r4r'
-  ext.gem_spec = spec
+Dir.glob("ext/r4r/*").each do |dirname|
+  extname = File.basename dirname
+
+  puts [extname, dirname].inspect
+
+  Rake::ExtensionTask.new do |ext|
+    ext.name = extname
+    ext.ext_dir = dirname
+    ext.lib_dir = 'lib/r4r'
+    ext.gem_spec = spec
+  end
+
 end
 
 require 'yard'
-
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'ext/**/*.c']
- t.options = ['--any', '--extra', '--opts']
- t.stats_options = ['--list-undoc']
+  t.options = ['--any', '--extra', '--opts']
+  t.stats_options = ['--list-undoc']
 end
