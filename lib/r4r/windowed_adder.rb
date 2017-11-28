@@ -3,7 +3,7 @@ require 'concurrent/atomic/atomic_fixnum'
 
 module R4r
 
-  # A Ruby port of the finagle's WindowedAdder
+  # A Ruby port of the finagle's WindowedAdder.
   #
   # @see https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/WindowedAdder.scala
   # @see https://github.com/ruby-concurrency/concurrent-ruby/blob/master/lib/concurrent/thread_safe/util/adder.rb
@@ -11,7 +11,7 @@ module R4r
   # @!visbility private
   class WindowedAdder
 
-    # Creates a time-windowed version of a [Concurrent::ThreadSafe::Util::Adder].
+    # Creates a time-windowed version of a {Concurrent::ThreadSafe::Util::Adder}.
     #
     # @param [Fixnum] range_ms the range of time in millisecods to be kept in the adder.
     # @param [Fixnum] slices the number of slices that are maintained; a higher
@@ -19,9 +19,9 @@ module R4r
     #   consumption. Must be more than 1.
     # @param [R4r::Clock] clock the current time. for testing.
     #
-    # @throws [ArgumentError] if slices is less then 1
-    # @throws [ArgumentError] if range is nil
-    # @throws [ArgumentError] if slices is nil
+    # @raise [ArgumentError] if slices is less then 1
+    # @raise [ArgumentError] if range is nil
+    # @raise [ArgumentError] if slices is nil
     def initialize(range_ms:, slices:, clock: nil)
       raise ArgumentError, "range_ms cannot be nil" if range_ms.nil?
       raise ArgumentError, "slices cannot be nil" if slices.nil?

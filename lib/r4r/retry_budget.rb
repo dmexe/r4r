@@ -4,6 +4,10 @@ module R4r
   # A retry budget is useful for attenuating the amplifying effects
   # of many clients within a process retrying requests multiple
   # times. This acts as a form of coordination between those retries.
+  #
+  # A Ruby port of the finagle's RetryBudget.
+  #
+  # @see https://github.com/twitter/finagle/blob/master/finagle-core/src/main/scala/com/twitter/finagle/service/RetryBudget.scala
   class RetryBudget
 
     # Indicates a deposit, or credit, which will typically
@@ -27,10 +31,10 @@ module R4r
       raise NotImplementedError
     end
 
-    # Creates a [R4r::RetryBudget] that allows for about `percent_can_retry` percent
-    # of the total [R4r::RetryBudget#deposit] requests to be retried.
+    # Creates a {R4r::RetryBudget} that allows for about `percent_can_retry` percent
+    # of the total {R4r::RetryBudget#deposit} requests to be retried.
     #
-    # @param [Fixnum] ttl_ms deposits created by [R4r::RetryBudget#deposit] expire after
+    # @param [Fixnum] ttl_ms deposits created by {R4r::RetryBudget#deposit} expire after
     #   approximately `ttl_ms` time has passed. Must be `>= 1 second`
     #   and `<= 60 seconds`.
     # @param [Fixnum] min_retries_per_second the minimum rate of retries allowed in order to
@@ -38,14 +42,14 @@ module R4r
     #   that do not issue many requests per window.
     #   Must be non-negative and if `0`, then no reserve is given.
     # @param [Float] percent_can_retry the percentage of calls to `deposit()` that can be
-    #   retried. This is in addition to any retries allowed for via `minRetriesPerSec`.
+    #   retried. This is in addition to any retries allowed for via `min_retries_per_second`.
     #   Must be >= 0 and <= 1000. As an example, if `0.1` is used, then for every
     #   10 calls to `deposit()`, 1 retry will be allowed. If `2.0` is used then every
     #   `deposit` allows for 2 retries.
     # @param [R4r::Clock] clock the current time for testing
     #
     # @raise [ArgumentError]
-    def self.create(ttl_ms: nil, min_retries_per_second:, percent_can_retry:, clock: nil)
+    def self.create(ttl_ms: nil, min_retries_per_second: 10, percent_can_retry: 0.2, clock: nil)
       ttl_ms = (ttl_ms || R4r::TokenRetryBudget::DEFAULT_TTL_MS).to_i
       min_retries_per_second = min_retries_per_second.to_i
       percent_can_retry = percent_can_retry.to_f
@@ -75,7 +79,7 @@ module R4r
     end
   end
 
-  # An [R4r::RetryBudget] that never has a balance,
+  # A {R4r::RetryBudget} that never has a balance,
   # and as such, will never allow a retry.
   class EmptyRetryBudget < RetryBudget
     def deposit ; end
@@ -83,7 +87,7 @@ module R4r
     def balance ; 0 ; end
   end
 
-  # An immutable [R4r::RetryBudget] that always has a balance of `100`,
+  # A {R4r::RetryBudget} that always has a balance of `100`,
   # and as such, will always allow a retry.
   class InfiniteRetryBudget < RetryBudget
     def deposit ; end
@@ -94,11 +98,11 @@ module R4r
   class TokenRetryBudget < RetryBudget
     # This scaling factor allows for `percent_can_retry` > 1 without
     # having to use floating points (as the underlying mechanism
-    # here is a [R4r::TokenBucket] which is not floating point based).
+    # here is a {R4r::TokenBucket} which is not floating point based).
     SCALE_FACTOR = 1000
     DEFAULT_TTL_MS = 10 * 1000
 
-    # Creates a new [R4r::TokenRetryBudget]
+    # Creates a new {R4r::TokenRetryBudget}.
     #
     # @param [R4r::TokenBucket] bucket
     # @param [Fixnum] deposit_amount
@@ -113,14 +117,17 @@ module R4r
       @withdrawal_amount = withdrawal_amount.to_i
     end
 
+    # @see R4r::RetryBudget#deposit
     def deposit
       @bucket.put(@deposit_amount)
     end
 
+    # @see R4r::RetryBudget#try_withdraw
     def try_withdraw
       @bucket.try_get(@withdrawal_amount)
     end
 
+    # @see R4r::RetryBudget#balance
     def balance
       @bucket.count / @withdrawal_amount
     end

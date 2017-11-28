@@ -9,6 +9,7 @@ module R4r
 
   # A ruby time clock
   class DefaultClock < Clock
+    # @see R4r::Clock#call
     def call
       (Time.now.to_f * 1_000).to_i
     end
@@ -16,14 +17,21 @@ module R4r
 
   # A frozen clock for testing
   class FrozenClock < Clock
+    # Creates a new instance of frozen clock.
+    #
+    # @param [R4r::Clock] parent an initial time clock
     def initialize(parent: nil)
       @time = (parent || R4r.clock).call
     end
 
+    # @see R4r::Clock#call
     def call
       @time
     end
 
+    # Increase clock time by given seconds.
+    #
+    # @param [Fixnum] seconds a number of seconds to increase time
     def advance(seconds:)
       @time += (seconds.to_i * 1_000)
     end
@@ -31,6 +39,7 @@ module R4r
 
   @@clock = DefaultClock.new
 
+  # Default {R4r::Clock} instance.
   def self.clock
     @@clock
   end

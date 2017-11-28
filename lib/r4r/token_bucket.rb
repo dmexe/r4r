@@ -1,6 +1,10 @@
 module R4r
   # A token bucket is used to control the relative rates of two
   # processes: one fills the bucket, another empties it.
+  #
+  # A Ruby port of the finagle's TokenBucket.
+  #
+  # @see https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/TokenBucket.scala
   class TokenBucket
     # Put `n` tokens into the bucket.
     #
@@ -31,7 +35,7 @@ module R4r
   # The token bucket starts empty.
   class BoundedTokenBucket < TokenBucket
 
-    # Creates a new [R4r::BoundedTokenBucket]
+    # Creates a new {R4r::BoundedTokenBucket}.
     #
     # @param [Fixnum] limit the upper bound on the number of tokens in the bucket.
     # @raise [ArgumentError] if limit isn't positive
@@ -55,7 +59,7 @@ module R4r
       @counter = [@counter + n, @limit].min
     end
 
-    # @see [R4r::TokenBucket#try_get]
+    # @see R4r::TokenBucket#try_get
     def try_get(n)
       n = n.to_i
       raise ArgumentError, "number of tokens must be positive" if n <= 0
@@ -69,7 +73,7 @@ module R4r
       ok
     end
 
-    # @see [R4r::TokenBucket#count]
+    # @see R4r::TokenBucket#count
     def count
       @counter
     end
@@ -81,7 +85,7 @@ module R4r
 
     # Creates a new [R4r::LeakyTokenBucket]
     #
-    # @param [Fixnum] ttl the (approximate) time in milliseconds after which a token will
+    # @param [Fixnum] ttl_ms the (approximate) time in milliseconds after which a token will
     #   expire.
     # @param [Fixnum] reserve the number of reserve tokens over the TTL
     #   period. That is, every `ttl` has `reserve` tokens in addition to
@@ -94,6 +98,7 @@ module R4r
       @window = R4r::WindowedAdder.new(range_ms: ttl_ms, slices: 10, clock: @clock)
     end
 
+    # @see R4r::TokenBucket#put
     def put(n)
       n = n.to_i
       raise ArgumentError, "n cannot be nagative" unless n >= 0
@@ -101,6 +106,7 @@ module R4r
       @window.add(n)
     end
 
+    # @see R4r::TokenBucket#try_get
     def try_get(n)
       n = n.to_i
       raise ArgumentError, "n cannot be nagative" unless n >= 0
@@ -113,6 +119,7 @@ module R4r
       ok
     end
 
+    # @see R4r::TokenBucket#count
     def count
       @window.sum + @reserve
     end

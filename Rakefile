@@ -19,10 +19,10 @@ Rake::ExtensionTask.new do |ext|
   ext.gem_spec = spec
 end
 
-require 'rdoc/task'
+require 'yard'
 
-RDoc::Task.new do |rdoc|
-  rdoc.main = "README.md"
-  rdoc.rdoc_files.include("README.rdoc", "lib/**/*.rb", "ext/**/*.c")
-  rdoc.options << "--all"
+YARD::Rake::YardocTask.new do |t|
+  t.files   = ['lib/**/*.rb', 'ext/**/*.c']
+ t.options = ['--any', '--extra', '--opts']
+ t.stats_options = ['--list-undoc']
 end

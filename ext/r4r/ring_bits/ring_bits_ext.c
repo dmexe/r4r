@@ -47,10 +47,8 @@ ring_bits_ext_alloc(VALUE klass) {
 /**
  * Inits a new ring_bits_ext object.
  *
- * * *Args*:
- *   - +capacity+:: a ring bits buffer size.
- * * *Raises*:
- *   - ArgumentError if capacity is negative
+ * @param [Fixnum] capacity a ring bits buffer size.
+ * @raise [ArgumentError] if capacity is negative
  */
 static VALUE
 ring_bits_ext_init(VALUE self, VALUE capacity) {
@@ -104,12 +102,9 @@ _ring_bits_ext_set(struct ring_bits_ext *ptr, int bit_index, bool value) {
 /**
  * Sets the bit at the specified index to value.
  *
- * * *Args*:
- *   - +bit_index_value+:: a bit index
- * * *Returns*:
- *   - previous state of bit_index that can be true or false
- * * *Raises*:
- *   - ArgumentError if the specified index is negative
+ * @param [Fixnum] bit_index_value a bit index
+ * @return previous state of bit_index that can be true or false
+ * @raise [ArgumentError] if the specified index is negative
  */
 static VALUE
 ring_bits_ext_set(VALUE self, VALUE bit_index_value, VALUE value) {
@@ -140,12 +135,9 @@ _ring_bits_ext_get(struct ring_bits_ext *ptr, int bit_index) {
 /**
  * Gets the bit at the specified index.
  *
- * * *Args*:
- *   - +bit_index+:: a bit index
- * * *Returns*:
- *   - state of bit_index that can be true or false
- * * *Raises*:
- *   - ArgumentError if the specified index is negative
+ * @param [Fixnum] bit_index_value a bit index
+ * @return state of bit_index that can be true or false
+ * @raise [ArgumentError] if the specified index is negative
  */
 static VALUE
 ring_bits_ext_get(VALUE self, VALUE bit_index_value) {
