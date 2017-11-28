@@ -21,8 +21,6 @@ spec = Gem::Specification.load('r4r.gemspec')
 Dir.glob("ext/r4r/*").each do |dirname|
   extname = File.basename dirname
 
-  puts [extname, dirname].inspect
-
   Rake::ExtensionTask.new do |ext|
     ext.name = extname
     ext.ext_dir = dirname

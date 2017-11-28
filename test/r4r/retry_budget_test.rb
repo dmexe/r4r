@@ -4,46 +4,46 @@ describe R4r::RetryBudget do
   it "EmptyRetryBudget is empty" do
     rb = R4r::EmptyRetryBudget.new
 
-    rb.balance.must_equal 0
-    rb.try_withdraw.must_equal false
+    expect(rb.balance).must_equal 0
+    expect(rb.try_withdraw).must_equal false
 
     rb.deposit
-    rb.balance.must_equal 0
-    rb.try_withdraw.must_equal false
+    expect(rb.balance).must_equal 0
+    expect(rb.try_withdraw).must_equal false
   end
 
   it "InfiniteRetryBudget is infinite" do
     rb = R4r::InfiniteRetryBudget.new
 
-    rb.balance.must_equal 100
-    rb.try_withdraw.must_equal true
+    expect(rb.balance).must_equal 100
+    expect(rb.try_withdraw).must_equal true
   end
 
   it "apply ttl_ms bounds check" do
-    proc {
+    expect {
       R4r::RetryBudget.create(ttl_ms: 61 * 1000, min_retries_per_second: -1, percent_can_retry: 0.1)
     }.must_raise ArgumentError
 
-    proc {
+    expect {
       R4r::RetryBudget.create(ttl_ms: 0, min_retries_per_second: -1, percent_can_retry: 0.1)
     }.must_raise ArgumentError
   end
 
   it "apply min_retries_per_second bounds check" do
-    proc {
+    expect {
       R4r::RetryBudget.create(ttl_ms: 10 * 1000, min_retries_per_second: -1, percent_can_retry: 0.1)
     }.must_raise ArgumentError
   end
 
   it "apply percent_can_retry bounds check" do
-    proc {
+    expect {
       R4r::RetryBudget.create(ttl_ms: 10 * 1000, min_retries_per_second: 0, percent_can_retry: -0.1)
     }.must_raise ArgumentError
   end
 
   it "apply min_retries_per_second=0 percent_can_retry=0 should be empty" do
     rb = R4r::RetryBudget.create(ttl_ms: 10 * 1000, min_retries_per_second: 0, percent_can_retry: 0.0)
-    rb.must_be_instance_of R4r::EmptyRetryBudget
+    expect(rb).must_be_instance_of R4r::EmptyRetryBudget
   end
 
   it "apply min_retries_per_second=0" do
@@ -73,8 +73,8 @@ describe R4r::RetryBudget do
     rb = R4r::RetryBudget.create(min_retries_per_second: 0, percent_can_retry: percent)
 
     # check initial conditions
-    rb.balance.must_equal 0
-    rb.try_withdraw.must_equal false
+    expect(rb.balance).must_equal 0
+    expect(rb.try_withdraw).must_equal false
 
     n_reqs = 10_000
     (0...n_reqs).each do
@@ -82,7 +82,7 @@ describe R4r::RetryBudget do
     end
 
     expected_retries = (n_reqs * percent).to_i
-    expected_retries.must_equal rb.balance
+    expect(expected_retries).must_equal rb.balance
   end
 
   it "apply with min_retries_per_second and percent_can_retry=0" do
@@ -110,10 +110,10 @@ describe R4r::RetryBudget do
       clock: clock)
 
     min_retries = (ttl_ms.to_i / 1000) * min_retries_per_second
-    min_retries.must_equal rb.balance
+    expect(min_retries).must_equal rb.balance
 
     if min_retries == 0
-      rb.try_withdraw.must_equal false
+      expect(rb.try_withdraw).must_equal false
     end
 
     n_reqs = 10_000
@@ -124,12 +124,12 @@ describe R4r::RetryBudget do
       if rb.try_withdraw
         retried += 1
       else
-        rb.balance.must_equal 0
+        expect(rb.balance).must_equal 0
       end
     end
 
     expected_retries = (n_reqs * percent_can_retry).to_i + min_retries
 
-    ((retried - 1)..(retried + 1)).must_be :include?, expected_retries
+    expect((retried - 1)..(retried + 1)).must_be :include?, expected_retries
   end
 end
