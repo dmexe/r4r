@@ -60,6 +60,38 @@ describe R4r::TokenBucket do
     bucket.try_get(1).must_equal false
   end
 
+  it "bounded bucket can put and get" do
+    bucket = R4r::BoundedTokenBucket.new(limit: 10)
+
+    bucket.put(5)
+    bucket.count.must_equal 5
+    bucket.try_get(3).must_equal true
+    bucket.count.must_equal 2
+    bucket.put(6)
+    bucket.count.must_equal 8
+    bucket.try_get(2).must_equal true
+    bucket.count.must_equal 6
+    bucket.try_get(5).must_equal true
+    bucket.count.must_equal 1
+    bucket.try_get(6).must_equal false
+    bucket.count.must_equal 1
+  end
+
+  it "bounded bucket is limited" do
+    bucket = R4r::BoundedTokenBucket.new(limit: 10)
+
+    bucket.put(15)
+    bucket.count.must_equal 10
+    bucket.try_get(10).must_equal true
+    bucket.count.must_equal 0
+    bucket.try_get(1).must_equal false
+    bucket.count.must_equal 0
+    bucket.put(15)
+    bucket.count.must_equal 10
+    bucket.try_get(11).must_equal false
+    bucket.count.must_equal 10
+  end
+
   private
 
   def new_clock

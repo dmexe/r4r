@@ -52,12 +52,9 @@ module R4r
 
     # Increment the adder by `x`
     def add(x)
-      puts "add(#{x}): now=#{@now.call} old=#{@old} diff=#{@now.call - @old} window=#{@window}"
       expired if (@now.call - @old) >= @window
 
-      i = @writer.add(x)
-      puts "add(#{x}): index=#{@index} buf=#{@buf} sum=#{@writer.sum}"
-      i
+      @writer.add(x)
     end
 
     # Retrieve the current sum of the adder
@@ -73,8 +70,6 @@ module R4r
         i += 1
       end
 
-      puts "sum(): value=#{value}"
-
       value
     end
 
@@ -83,15 +78,11 @@ module R4r
     def expired
       return unless @expired_gen.compare_and_set(@gen, @gen + 1)
 
-      puts "expired().1: buf=#{@buf} sum=#{@writer.sum} index=#{@index}"
-
       # At the time of add, we were likely up to date,
       # so we credit it to the current slice.
       @buf[@index] = @writer.sum
       @writer.reset
       @index = (@index + 1) % @slices
-
-      puts "expired().2: buf=#{@buf} sum=#{@writer.sum} index=#{@index}"
 
       # If it turns out we've skipped a number of
       # slices, we adjust for that here.
@@ -99,11 +90,9 @@ module R4r
 
       if nskip > 0
         r = [nskip, @slices - @index].min
-        puts "expired().3: r=#{r} nskip=#{nskip} index=#{@index} slices=#{@slices}"
         @buf.fill(@index, r) { 0 }
         @buf.fill(0, nskip - r) { 0 }
         @index = (@index + nskip) % @slices
-        puts "expired().4: r=#{r} nskip=#{nskip} index=#{@index} slices=#{@slices}"
       end
 
       @old = @now.call

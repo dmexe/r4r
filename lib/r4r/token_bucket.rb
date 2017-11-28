@@ -49,16 +49,23 @@ module R4r
     #
     # @raise [ArgumentError] is n isn't positive
     def put(n)
-      raise ArgumentError, "number of tokens must be positive" if n.to_i <= 0
-      @counter = [@counter + n, limit].min
+      n = n.to_i
+      raise ArgumentError, "number of tokens must be positive" if n <= 0
+
+      @counter = [@counter + n, @limit].min
     end
 
     # @see [R4r::TokenBucket#try_get]
     def try_get(n)
-      ok = @counter > 0
+      n = n.to_i
+      raise ArgumentError, "number of tokens must be positive" if n <= 0
+
+      ok = @counter >= n
+
       if ok
         @counter -= n
       end
+
       ok
     end
 
