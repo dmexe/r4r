@@ -1,0 +1,59 @@
+version: 2
+
+shared: &shared
+  working_directory: ~/repo
+  environment:
+    TERM: dump
+
+  steps:
+    - checkout
+    # Download and cache dependencies
+    - restore_cache:
+        keys:
+          - v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
+          - v1-dependencies-
+
+    - run:
+        name: install dependencies
+        command: |
+          bundle install --jobs=4 --retry=3 --path vendor/bundle
+
+    - save_cache:
+        paths:
+          - ./vendor/bundle
+        key: v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
+
+    - run:
+        name: compile
+        command: |
+          bundle exec rake compile
+
+    - run:
+        name: run tests
+        command: |
+          bundle exec rake test TESTOPTS="--ci-dir=$CIRCLE_TEST_REPORTS/reports"
+
+    - store_test_results:
+        path: /reports
+
+    - store_artifacts:
+        path: /reports
+        destination: test-results
+
+jobs:
+  ruby22:
+    <<: *shared
+    docker:
+      - image: ruby:2.2
+  ruby24:
+    <<: *shared
+    docker:
+      - image: ruby:2.4
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - ruby22
+      - ruby24
+

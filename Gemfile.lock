@@ -1,0 +1,39 @@
+PATH
+  remote: .
+  specs:
+    r4r (0.1.0)
+      concurrent-ruby (~> 1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ansi (1.5.0)
+    builder (3.2.3)
+    concurrent-ruby (1.0.5)
+    minitest (5.10.3)
+    minitest-ci (3.3.0)
+      minitest (>= 5.0.6)
+    minitest-reporters (1.1.19)
+      ansi
+      builder
+      minitest (>= 5.0)
+      ruby-progressbar
+    rake (10.5.0)
+    rake-compiler (1.0.4)
+      rake
+    ruby-progressbar (1.9.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 1.15)
+  minitest (~> 5.0)
+  minitest-ci (~> 3.3)
+  minitest-reporters (~> 1.1)
+  r4r!
+  rake (~> 10.0)
+  rake-compiler (~> 1.0)
+
+BUNDLED WITH
+   1.15.4
