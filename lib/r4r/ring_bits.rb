@@ -5,10 +5,8 @@ module R4r ; class RingBits
   # represent bits with indices in the range 0 through
   # size-1. All bits are initially set to false.
   #
-  # * *Args*:
-  #   - +size+:: the size of ring bits buffer
-  # * *Raises*:
-  #   - ArgumentError if the specified size is negitive
+  # @param [Fixnum] size the size of ring bits buffer
+  # @raise [ArgumentError] if the specified size is negitive
   def initialize(size:, bit_set_class: nil)
     @size = size
     @bit_set = (bit_set_class || RingBitsExt).new(size.to_i)
@@ -30,10 +28,8 @@ module R4r ; class RingBits
 
   # Sets the bit at the next index to the specified value.
   #
-  # * *Args*:
-  #   - +value+:: is a boolean value to set
-  # * *Returns*:
-  #   - the number of bits set to true
+  # @param [Boolean] value is a boolean value to set
+  # @return [Fixnum] the number of bits set to true
   def set_next(value)
     increase_length
 
