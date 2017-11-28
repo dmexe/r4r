@@ -49,10 +49,10 @@ module R4r
     # @param [R4r::Clock] clock the current time for testing
     #
     # @raise [ArgumentError]
-    def self.create(ttl_ms: nil, min_retries_per_second: 10, percent_can_retry: 0.2, clock: nil)
+    def self.create(ttl_ms: nil, min_retries_per_second: nil, percent_can_retry: nil, clock: nil)
       ttl_ms = (ttl_ms || R4r::TokenRetryBudget::DEFAULT_TTL_MS).to_i
-      min_retries_per_second = min_retries_per_second.to_i
-      percent_can_retry = percent_can_retry.to_f
+      min_retries_per_second = (min_retries_per_second || 10).to_i
+      percent_can_retry = (percent_can_retry.to_f || 0.2).to_f
 
       unless ttl_ms >= 0 && ttl_ms <= 60 * 1000
         raise ArgumentError, "ttl_ms must be in [1.second, 60.seconds], got #{ttl_ms}"

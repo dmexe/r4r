@@ -33,6 +33,11 @@ shared: &shared
         command: |
           bundle exec rake test TESTOPTS="--ci-dir=$CIRCLE_TEST_REPORTS/reports"
 
+    - run:
+        name: run bench
+        command: |
+          bundle exec rake bench
+
     - store_test_results:
         path: /reports
 

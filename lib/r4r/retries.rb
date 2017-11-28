@@ -1,7 +1,7 @@
 module R4r
 
   # Decorator that warp a block and call it within retries.
-  class RetriesDecorator
+  class Retries
 
     # Creates a new [R4r::RetriesDecorator].
     #
@@ -12,7 +12,7 @@ module R4r
     # @param [Lambda] policy
     # @param [R4r::RetryBudget] budget
     def initialize(
-      min_retries_per_seconds: nil,
+      min_retries_per_second: nil,
       percent_can_retry: nil,
       backoff: nil,
       num_retries: nil,
@@ -20,12 +20,21 @@ module R4r
       budget: nil
     )
       @policy = policy
-      @backoff = num_retries.to_i > 0 ?
-        Array.new(num_retries.to_i) { 0 } :
-        Array(backoff).map { |i| i.to_f }
-      @budget = budget ?
-        budget :
-        R4r::RetryBudget.create(min_retries_per_seconds: min_retries_per_seconds, percent_can_retry: percent_can_retry)
+
+      if num_retries != nil
+        @backoff = Array.new(num_retries) { Array(backoff).first.to_f }
+      else
+        @backoff = Array.new(backoff).map { |i| i.to_f }
+      end
+
+      if budget != nil
+        @budget = budget
+      else
+        @budget = R4r::RetryBudget.create(
+          min_retries_per_second: min_retries_per_second,
+          percent_can_retry: percent_can_retry
+        )
+      end
     end
 
     # Decorates a given block within retries.
@@ -45,8 +54,8 @@ module R4r
 
       while num_retry < @backoff.size
         begin
-          yield num_retry
-        rescue Exception => err
+          return yield(num_retry)
+        rescue => err
           can_rescue = @policy ? @policy.call(err, num_retry) : true
           raise err unless can_rescue
           raise err unless @budget.try_withdraw

@@ -11,7 +11,7 @@ module R4r
   # @!visbility private
   class WindowedAdder
 
-    # Creates a time-windowed version of a {Concurrent::ThreadSafe::Util::Adder}.
+    # Creates a time-windowed version of a {Concurrent::ThreadSafe::Util::Adder].
     #
     # @param [Fixnum] range_ms the range of time in millisecods to be kept in the adder.
     # @param [Fixnum] slices the number of slices that are maintained; a higher
