@@ -26,17 +26,17 @@ shared: &shared
     - run:
         name: compile
         command: |
-          bundle exec rake compile
+          bin/rake compile
 
     - run:
         name: run tests
         command: |
-          bundle exec rake test TESTOPTS="--ci-dir=$CIRCLE_TEST_REPORTS/reports"
+          bin/rake test TESTOPTS="--ci-dir=$CIRCLE_TEST_REPORTS/reports"
 
     - run:
         name: run bench
         command: |
-          bundle exec rake bench
+          bin/rake bench
 
     - store_test_results:
         path: /reports
