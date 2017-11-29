@@ -39,7 +39,7 @@ module R4r
     #
     # @raise [ArgumentError] when backoff is empty
     # @raise [ArgumentError] when backoff has negative values
-    def initialize(backoff: nil, policy: nil, budget: nil)
+    def initialize(backoff:, policy: nil, budget: nil)
       @policy = (policy || R4r::RetryPolicy.always)
       @backoff = Array.new(backoff).map { |i| i.to_f }
       @budget = budget != nil ? budget : R4r::RetryBudget.create
