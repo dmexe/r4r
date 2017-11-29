@@ -2,14 +2,12 @@ PATH
   remote: .
   specs:
     r4r (0.1.0)
-      concurrent-ruby (~> 1.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
     ansi (1.5.0)
     builder (3.2.3)
-    concurrent-ruby (1.0.5)
     minitest (5.10.3)
     minitest-ci (3.3.0)
       minitest (>= 5.0.6)
