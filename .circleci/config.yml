@@ -1,6 +1,40 @@
 version: 2
 
-shared: &shared
+shared_ghpages: &shared_ghpages
+  working_directory: ~/repo
+  environment:
+    TERM: dump
+
+  steps:
+    - checkout
+    # Download and cache dependencies
+    - restore_cache:
+        keys:
+          - v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
+          - v1-dependencies-
+
+    - run:
+        name: install dependencies
+        command: |
+          bundle install --jobs=4 --retry=3 --path vendor/bundle
+
+    - save_cache:
+        paths:
+          - ./vendor/bundle
+        key: v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
+
+    - add-ssh-keys:
+        fingerprints:
+          - "af:38:77:24:f4:c6:33:f2:74:60:e5:cc:76:0e:a7:ad"
+
+    - run:
+        name: publish gh-pages
+        command: |
+          git config --global user.email "ghpages@dmexe.me"
+          git config --global user.name $CIRCLE_USERNAME
+          bin/ghpages
+
+shared_ruby_build: &shared_ruby_build
   working_directory: ~/repo
   environment:
     TERM: dump
@@ -47,18 +81,30 @@ shared: &shared
 
 jobs:
   ruby22:
-    <<: *shared
+    <<: *shared_ruby_build
     docker:
       - image: ruby:2.2
   ruby24:
-    <<: *shared
+    <<: *shared_ruby_build
+    docker:
+      - image: ruby:2.4
+  ghpages:
+    <<: *shared_ghpages
     docker:
       - image: ruby:2.4
 
 workflows:
   version: 2
-  build_and_test:
+  build-test-deploy:
     jobs:
       - ruby22
       - ruby24
+      - ghpages:
+          requires:
+            - ruby22
+            - ruby24
+          filters:
+            branches:
+              only: master
+
 
