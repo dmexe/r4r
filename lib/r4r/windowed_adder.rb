@@ -1,5 +1,5 @@
-require 'concurrent/thread_safe/util/adder'
-require 'concurrent/atomic/atomic_fixnum'
+# require 'concurrent/thread_safe/util/adder'
+# require 'concurrent/atomic/atomic_fixnum'
 
 module R4r
 
@@ -27,9 +27,9 @@ module R4r
 
       @window = range_ms.to_i / slices.to_i
       @slices = slices.to_i - 1
-      @writer = ::Concurrent::ThreadSafe::Util::Adder.new
+      @writer = 0 #::Concurrent::ThreadSafe::Util::Adder.new
       @gen = 0
-      @expired_gen = ::Concurrent::AtomicFixnum.new(@gen)
+      @expired_gen = 0 #::Concurrent::AtomicFixnum.new(@gen)
       @buf = Array.new(@slices) { 0 }
       @index = 0
       @now = (clock || R4r.clock)
@@ -39,7 +39,7 @@ module R4r
     # Reset the state of the adder.
     def reset
       @buf.fill(0, @slices) { 0 }
-      @writer.reset
+      @writer = 0
       @old = @now.call
     end
 
@@ -52,7 +52,7 @@ module R4r
     def add(x)
       expired if (@now.call - @old) >= @window
 
-      @writer.add(x)
+      @writer += x
     end
 
     # Retrieve the current sum of the adder
@@ -61,7 +61,7 @@ module R4r
     def sum
       expired if (@now.call - @old) >= @window
 
-      value = @writer.sum
+      value = @writer
       i = 0
       while i < @slices
         value += @buf[i]
@@ -74,12 +74,11 @@ module R4r
     private
 
     def expired
-      return unless @expired_gen.compare_and_set(@gen, @gen + 1)
+      # return unless @expired_gen.compare_and_set(@gen, @gen + 1)
 
       # At the time of add, we were likely up to date,
       # so we credit it to the current slice.
-      @buf[@index] = @writer.sum
-      @writer.reset
+      @buf[@index] = sum_and_reset
       @index = (@index + 1) % @slices
 
       # If it turns out we've skipped a number of
@@ -95,6 +94,12 @@ module R4r
 
       @old = @now.call
       @gen += 1
+    end
+
+    def sum_and_reset
+      sum = @writer
+      @writer = 0
+      sum
     end
 
   end
