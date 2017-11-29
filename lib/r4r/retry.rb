@@ -1,8 +1,12 @@
 module R4r
 
+  # An error raises when retry was failed.
+  #
   class NonRetriableError < RuntimeError
     attr_reader :cause
 
+    # @param [String] message an error message
+    # @param [Exception] cause a error cause
     def initialize(message:, cause:)
       super(message)
       @cause = cause
@@ -10,6 +14,18 @@ module R4r
   end
 
   # Decorator that wrap blocks and call it within retries.
+  #
+  # @attr [Array[Float]] backoff
+  # @attr [R4r::RetryBudget] budget
+  #
+  # @example constant backoff, it will never pause between retries and will try 3 times.
+  #   retry = R4r::Retry.constant_backoff(num_retries: 3)
+  #   retry.call { get_http_request }
+  #
+  # @example exponential backoff, it will pause between invocations using given backoff invtervals and will try 4 times
+  #   retry = R4r::Retry.backoff(backoff: [0.1, 0.3, 1, 5])
+  #   retry.call { get_http_request }
+  #
   class Retry
 
     attr_reader :backoff
@@ -17,12 +33,12 @@ module R4r
 
     # Creates a new retries dectorator.
     #
-    # @param [Array[Float]] backoff an array with backoff timeouts in seconds
-    # @param [R4r::RetryPolicy] policy
-    # @param [R4r::RetryBudget] budget
+    # @param [Array[Float]] backoff an array with backoff intervals (in seconds)
+    # @param [R4r::RetryPolicy] policy a policy used for error filtiring
+    # @param [R4r::RetryBudget] budget a retry budget
     #
     # @raise [ArgumentError] when backoff is empty
-    # @raise [ArgumentError] when backoff was a negative values
+    # @raise [ArgumentError] when backoff has negative values
     def initialize(backoff: nil, policy: nil, budget: nil)
       @policy = (policy || R4r::RetryPolicy.always)
       @backoff = Array.new(backoff).map { |i| i.to_f }
@@ -33,6 +49,8 @@ module R4r
     end
 
     # Decorates a given block within retries.
+    #
+    # @return [Proc]
     def decorate(&block)
       ->() { call { yield } }
     end
@@ -71,6 +89,20 @@ module R4r
       end
     end
 
+    # Creates a {R4r::Retry} with fixed backoff rates.
+    #
+    # @param [R4r::RetryPolicy] policy a policy used for error filtiring
+    # @param [R4r::RetryBudget] budget a retry budget
+    # @return [R4r::Retry]
+    #
+    # @raise [ArgumentError] when num_retries is negative
+    # @raise [ArgumentError] when backoff is negative
+    #
+    # @example without sleep between invocations
+    #   R4r::Retry.constant_backoff(num_retries:3)
+    #
+    # @example with sleep 1s between invocations
+    #   R4r::Retry.constant_backoff(num_retries: 3, backoff: 1)
     def self.constant_backoff(num_retries:, backoff: 0.0, policy: nil, budget: nil)
       raise ArgumentError, "num_retries cannot be negative" unless num_retries.to_i >= 0
       raise ArgumentError, "backoff cannot be negative" unless backoff.to_f >= 0.0
@@ -79,6 +111,19 @@ module R4r
       R4r::Retry.new(backoff: backoff, policy: policy, budget: budget)
     end
 
+    # Creates a {R4r::Retry} with backoff intervals.
+    #
+    # @param [Array[Float]] backoff a list of sleep intervals (in seconds)
+    # @param [R4r::RetryPolicy] policy a policy used for error filtiring
+    # @param [R4r::RetryBudget] budget a retry budget
+    # @return [R4r::Retry]
+    #
+    # @raise [ArgumentError] when backoff is nil
+    # @raise [ArgumentError] when backoff isn't array
+    # @raise [ArgumentError] when backoff has negative values
+    #
+    # @example exponential backoff between invocations
+    #   R4r::Retry.backoff(backoff: [0.1, 0.5, 1, 3])
     def self.backoff(backoff:, policy: nil, budget: nil)
       raise ArgumentError, "backoff cannot be nil" if backoff.nil?
       raise ArgumentError, "backoff must be an array" unless backoff.is_a?(Array)
