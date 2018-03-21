@@ -7,21 +7,10 @@ shared_ghpages: &shared_ghpages
 
   steps:
     - checkout
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-          - v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
-          - v1-dependencies-
-
     - run:
         name: install dependencies
         command: |
           bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-    - save_cache:
-        paths:
-          - ./vendor/bundle
-        key: v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
 
     - add-ssh-keys:
         fingerprints:
@@ -42,20 +31,10 @@ shared_ruby_build: &shared_ruby_build
   steps:
     - checkout
     # Download and cache dependencies
-    - restore_cache:
-        keys:
-          - v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
-          - v1-dependencies-
-
     - run:
         name: install dependencies
         command: |
           bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-    - save_cache:
-        paths:
-          - ./vendor/bundle
-        key: v1-dependencies-{{ .Environment.CIRCLE_STAGE }}-{{ checksum "Gemfile.lock" }}
 
     - run:
         name: compile
