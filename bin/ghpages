@@ -1,9 +1,10 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 git diff-index --quiet HEAD -- || (
   echo "Uncommitted changes detected"
+  git diff-index
   exit 1
 )
 
