@@ -4,7 +4,7 @@ set -e
 
 git diff-index --quiet HEAD -- || (
   echo "Uncommitted changes detected"
-  git diff-index
+  git diff-index HEAD
   exit 1
 )
 
