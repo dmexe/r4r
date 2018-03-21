@@ -88,10 +88,14 @@ jobs:
     <<: *shared_ruby_build
     docker:
       - image: ruby:2.4
+  ruby25:
+    <<: *shared_ruby_build
+    docker:
+      - image: ruby:2.5
   ghpages:
     <<: *shared_ghpages
     docker:
-      - image: ruby:2.4
+      - image: ruby:2.5
 
 workflows:
   version: 2
@@ -99,10 +103,12 @@ workflows:
     jobs:
       - ruby22
       - ruby24
+      - ruby25
       - ghpages:
           requires:
             - ruby22
             - ruby24
+            - ruby25
           filters:
             branches:
               only: master
