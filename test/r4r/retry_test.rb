@@ -28,7 +28,7 @@ describe R4r::Retry do
 
     expect {
       rr.call do |n|
-        raise R4r::NonRetriableError.new(message: "-", cause: nil) if n == 0
+        raise R4r::NonRetriableError.new(message: "-", kind: 0, cause: nil) if n == 0
       end
     }.must_raise R4r::NonRetriableError
   end

@@ -1,18 +1,4 @@
 module R4r
-
-  # An error raises when retry was failed.
-  #
-  class NonRetriableError < RuntimeError
-    attr_reader :cause
-
-    # @param [String] message an error message
-    # @param [Exception] cause a error cause
-    def initialize(message:, cause:)
-      super(message)
-      @cause = cause
-    end
-  end
-
   # Decorator that wrap blocks and call it within retries.
   #
   # @attr [Array[Float]] backoff
@@ -72,15 +58,27 @@ module R4r
           raise err if err.is_a?(NonRetriableError)
 
           if (num_retry + 1 == @backoff.size)
-            raise NonRetriableError.new(message: "Retry limit [#{@backoff.size}] reached: #{err}", cause: err)
+            raise NonRetriableError.new(
+              message: "Retry limit [#{@backoff.size}] reached: #{err}",
+              kind: NonRetriableError::KIND_LIMIT_REACHED,
+              cause: err
+            )
           end
 
           unless @policy.call(error: err, num_retry: num_retry)
-            raise NonRetriableError.new(message: "An error was rejected by policy: #{err}", cause: err)
+            raise NonRetriableError.new(
+              message: "An error was rejected by policy: #{err}",
+              kind: NonRetriableError::KIND_REJECTED_BY_POLICY,
+              cause: err
+            )
           end
 
           unless @budget.try_withdraw
-            raise NonRetriableError.new(message: "Budget was exhausted: #{err}", cause: err)
+            raise NonRetriableError.new(
+              message: "Budget was exhausted: #{err}",
+              kind: NonRetriableError::KIND_BUDGET_EXHAUSTED,
+              cause: err
+            )
           end
         end
 
