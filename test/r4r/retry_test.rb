@@ -23,6 +23,25 @@ describe R4r::Retry do
     expect(result).must_equal :result
   end
 
+  it "should recover from an error when backoff has a single value" do
+    rr = R4r::Retry.backoff(backoff: [0.1])
+    recovered = 0
+
+    result = rr.call do |n|
+      puts n.inspect
+      if n < 1
+        recovered += 1
+        raise RuntimeError, "boom"
+      end
+
+      :result
+    end
+
+    expect(recovered).must_equal 1
+    expect(result).must_equal :result
+  end
+
+
   it "should pass through NonRetriableError" do
     rr = R4r::Retry.constant_backoff(num_retries: 3)
 
@@ -63,6 +82,7 @@ describe R4r::Retry do
         raise RuntimeError
       end
     }.must_raise R4r::NonRetriableError
-    expect(recovered).must_equal(3)
+
+    expect(recovered).must_equal(4)
   end
 end

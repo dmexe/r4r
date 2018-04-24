@@ -50,14 +50,14 @@ module R4r
       num_retry = 0
       @budget.deposit
 
-      while num_retry < @backoff.size
+      while num_retry <= @backoff.size
 
         begin
           return yield(num_retry)
         rescue => err
           raise err if err.is_a?(NonRetriableError)
 
-          if (num_retry + 1 == @backoff.size)
+          if (num_retry + 1 > @backoff.size)
             raise NonRetriableError.new(
               message: "Retry limit [#{@backoff.size}] reached: #{err}",
               kind: NonRetriableError::KIND_LIMIT_REACHED,
