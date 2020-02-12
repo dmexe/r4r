@@ -1,6 +1,7 @@
 name: Ruby
 
 on: [push]
+runs-on: self-hosted
 
 jobs:
   build:
@@ -15,6 +16,6 @@ jobs:
         ruby-version: 2.2.x
     - name: Build and test with Rake
       run: |
-        gem install bundler
+        gem install bundler -v 1.15
         bundle install --jobs 4 --retry 3
         bundle exec rake
