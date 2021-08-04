@@ -51,7 +51,6 @@ module R4r
       @budget.deposit
 
       while num_retry <= @backoff.size
-
         begin
           return yield(num_retry)
         rescue => err
@@ -80,10 +79,10 @@ module R4r
               cause: err
             )
           end
-        end
 
-        sleep @backoff[num_retry]
-        num_retry += 1
+          sleep @backoff[num_retry]
+          num_retry += 1
+        end
       end
     end
 
